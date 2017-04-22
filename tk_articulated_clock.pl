@@ -8,7 +8,7 @@ use Getopt::Long;
 use Tk;
 use Tk::Notebook;
 
-use vars qw( %clock %obj $_debug $_test $_verbose $direction_ltg $mode_24h );
+use vars qw( %clock %obj $_debug $_test $_verbose  $_pi $direction_ltg $mode_24h %calculated );
 
 $| = 1;
 srand();
@@ -20,6 +20,7 @@ $_debug   = 0;
 $_test    = 0;
 $_verbose = 0;
 
+$_pi = 3.141593;
 $mode_24h           = 0;
 $direction_ltg      = 0;
 $obj{setting}{time} = q{00:00:00};
@@ -30,6 +31,22 @@ my %max = (
 );
 
 GetOptions( qq{debug} => \$_debug, );
+
+%calculated = ();
+$calculated{center}{x} = $max{x} / 2;
+$calculated{center}{y} = $max{y} / 2;
+
+foreach my $i ( 0 .. 23 ) {
+    $calculated{hour}{angle}{q{24h}}{$i} = $_pi * ( int( 90 - 360 * ( ( $i / 24.0 ) / 24.0 ) ) % 360 ) / 180.0;
+}
+foreach my $i ( 1 .. 12 ) {
+    $calculated{hour}{angle}{q{12h}}{$i} = $_pi * ( int( 90 - 360 * ( ( $i / 12.0 ) / 12.0 ) ) % 360 ) / 180.0;
+}
+foreach my $i ( 0 .. 59 ) {
+    $calculated{minute}{angle}{$i} = $_pi * ( int( 90 - 360 * ( ( $i / 60.0 ) / 60.0 ) ) % 360 ) / 180.0;
+}
+
+
 
 $obj{mw} = Tk::MainWindow->new();
 
@@ -262,3 +279,27 @@ BEGIN {
 }
 
 __END__
+
+=pod
+
+=head1 tk-articulated.pl
+
+tk-articulated.pl - a perl/Tk clock implementation of an analog clock with segmented, individually-moving arms
+
+A representation of L<http://blog.longnow.org/02009/07/18/articulated-clock-hands/>.
+
+=over
+
+=item *
+    Can be articulated when hands in H-E<lt>M-E<lt>S or S-E<lt>M-E<lt>H (inner to outer order).
+
+=item *
+    Can display as a 12 or 24-hour analog face.
+
+=item *
+    Display updates approximately every 0.25s.
+
+=back
+
+=cut
+
