@@ -26,6 +26,7 @@ GetOptions(
     qq{debug} => \$_debug,
 );
 
+$clock{setting}{time_display}     = 0;
 $clock{setting}{time_mode}        = 0;
 $clock{setting}{hour_mode}        = 0;
 $clock{setting}{brightness}       = 2;
@@ -41,20 +42,28 @@ $clock{setting}{day_second}       = 0;
 
 $clock{main} = new MainWindow;
 
+my $interface_row = 0;
+
 $clock{display} =
   $clock{main}->Frame()
-  ->grid( -column => 0, -columnspan => 4, -row => 0, );
+  ->grid( -column => 0, -columnspan => 4, -row => $interface_row, );
 $clock{display}{canvas} =
   $clock{display}->Canvas( -height => 240, -width => 320, )
-  ->grid( -column => 0, -columnspan => 4, -row => 0, );
+  ->grid( -column => 0, -columnspan => 4, -row => $interface_row, );
+
+$interface_row++;
+
 $clock{display}{label} = $clock{display}->Label(
     -textvariable => \$clock{setting}{time},
     -state        => q{normal},
-)->grid( -column => 0, -columnspan => 2, -row => 1, );
+)->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
 $clock{display}{label2} = $clock{display}->Label(
     -textvariable => \$clock{setting}{day_second},
     -state        => q{normal},
-)->grid( -column => 2, -columnspan => 2, -row => 1, );
+)->grid( -column => 2, -columnspan => 2, -row => $interface_row, );
+
+$interface_row++;
+
 $clock{display}{progress_bar} = $clock{display}->ProgressBar(
     -width  => 20,
     -length => 320,
@@ -67,7 +76,7 @@ $clock{display}{progress_bar} = $clock{display}->ProgressBar(
         43200, 'yellow', 64800, 'red',
     ],
     -variable => \$clock{setting}{day_second},
-)->grid( -column => 0, -columnspan => 4, -row => 2, );
+)->grid( -column => 0, -columnspan => 4, -row => $interface_row, );
 
 {
     my $active   = q{#3333FF};
@@ -93,80 +102,107 @@ $clock{display}{progress_bar} = $clock{display}->ProgressBar(
     }
 }
 
+$interface_row += 4;
+
 $clock{control} =
   $clock{main}->Frame()
-  ->grid( -column => 0, -columnspan => 4, -row => 6, );
+  ->grid( -column => 0, -columnspan => 4, -row => $interface_row, );
+
+$interface_row = 0;  
 
 $clock{control}->Label( -text => q{Binary mode:} )
-  ->grid( -column => 0, -columnspan => 2, -row => 0, );
+  ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{BCD},
     -value    => 0,
     -variable => \$clock{setting}{time_mode},
-)->grid( -column => 2, -row => 0, );
+)->grid( -column => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{"True"},
     -value    => 1,
     -variable => \$clock{setting}{time_mode},
-)->grid( -column => 3, -row => 0, );
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
 
 $clock{control}->Label( -text => q{Hour mode:} )
-  ->grid( -column => 0, -columnspan => 2, -row => 1, );
+  ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{24h},
     -value    => 0,
     -variable => \$clock{setting}{hour_mode},
-)->grid( -column => 2, -row => 1, );
+)->grid( -column => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{12h},
     -value    => 1,
     -variable => \$clock{setting}{hour_mode},
-)->grid( -column => 3, -row => 1, );
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
 
 $clock{control}->Label( -text => q{Brightness:} )
-  ->grid( -column => 0, -row => 2, );
+  ->grid( -column => 0, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{low},
     -value    => 0,
     -variable => \$clock{setting}{brightness},
-)->grid( -column => 1, -row => 2, );
+)->grid( -column => 1, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{medium},
     -value    => 1,
     -variable => \$clock{setting}{brightness},
-)->grid( -column => 2, -row => 2, );
+)->grid( -column => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{high},
     -value    => 2,
     -variable => \$clock{setting}{brightness},
-)->grid( -column => 3, -row => 2, );
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
 
 $clock{control}->Label( -text => q{Outline:} )
-  ->grid( -column => 0, -columnspan => 2, -row => 3, );
+  ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{No},
     -value    => 0,
     -variable => \$clock{setting}{outline},
-)->grid( -column => 2, -row => 3, );
+)->grid( -column => 2, -row => $interface_row, );
 $clock{control}->Radiobutton(
     -text     => q{Yes},
     -value    => 1,
     -variable => \$clock{setting}{outline},
-)->grid( -column => 3, -row => 3, );
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
+
+$clock{control}->Label( -text => q{Time display:} )
+  ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{Local},
+    -value    => 0,
+    -variable => \$clock{setting}{time_display},
+)->grid( -column => 2, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{GMT},
+    -value    => 1,
+    -variable => \$clock{setting}{time_display},
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
 
 if (0) {
     $clock{control}->Label( -text => q{Cheat mode:} )
-      ->grid( -column => 0, -columnspan => 2, -row => 4, );
+      ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
     $clock{control}->Radiobutton(
         -text     => q{Off},
         -value    => 0,
         -variable => \$clock{setting}{cheat_mode},
-    )->grid( -column => 2, -row => 4, );
+    )->grid( -column => 2, -row => $interface_row, );
     $clock{control}->Radiobutton(
         -text     => q{On},
         -value    => 1,
         -variable => \$clock{setting}{cheat_mode},
-    )->grid( -column => 3, -row => 4, );
+    )->grid( -column => 3, -row => $interface_row, );
 }
 
 $clock{repeat} =
@@ -220,9 +256,16 @@ sub get_hms {
         $sec,  $min,  $hour, $mday, $mon,
         $year, $wday, $yday, $isdst
     ) = localtime;
+    $clock{setting}{time} = substr( scalar localtime, 11, 8 );
+    if ( $clock{setting}{time_display} ) {
+        (
+            $sec,  $min,  $hour, $mday, $mon,
+            $year, $wday, $yday, $isdst
+        ) = gmtime;
+        $clock{setting}{time} = substr( scalar gmtime, 11, 8 );
+    }
     $mon++;
     $year += 1900;
-    $clock{setting}{time} = substr( scalar localtime, 11, 8 );
 
     $clock{setting}{day_second} =
       ( ( $hour * 60 ) + $min ) * 60 + $sec;
