@@ -32,6 +32,7 @@ $clock{setting}{hour_mode}         = 0;
 $clock{setting}{brightness}        = 2;
 $clock{setting}{outline}           = 1;
 $clock{setting}{cheat_mode}        = 1;
+$clock{setting}{color_key}         = 2;
 $clock{setting}{color}{0}          = q{#008};
 $clock{setting}{color}{1}          = q{#00C};
 $clock{setting}{color}{2}          = q{#00F};
@@ -224,16 +225,63 @@ if (0) {
     )->grid( -column => 3, -row => $interface_row, );
 }
 
+$interface_row++;
+
+$clock{control}->Label( -text => q{Color:} )
+  ->grid( -column => 0, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{red},
+    -value    => 0,
+    -variable => \$clock{setting}{color_key},
+)->grid( -column => 1, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{green},
+    -value    => 1,
+    -variable => \$clock{setting}{color_key},
+)->grid( -column => 2, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{blue},
+    -value    => 2,
+    -variable => \$clock{setting}{color_key},
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
+
 $clock{repeat} =
   $clock{display}{canvas}->repeat( 250, \&check_up );
 
 MainLoop;
 
 sub check_up {
+    &check_color;
     &check_outline;
     &check_brightness;
     &check_progress_bar;
     &check_time;
+}
+
+sub check_color {
+    if ( $clock{setting}{color_key} == 0 ) {
+        $clock{setting}{color}{0} = q{#800};
+        $clock{setting}{color}{1} = q{#C00};
+        $clock{setting}{color}{2} = q{#F00};
+        $clock{setting}{outline_color}{0} = q{#000};
+        $clock{setting}{outline_color}{1} = q{#800};
+    }
+    if ( $clock{setting}{color_key} == 1 ) {
+        $clock{setting}{color}{0} = q{#080};
+        $clock{setting}{color}{1} = q{#0C0};
+        $clock{setting}{color}{2} = q{#0F0};
+        $clock{setting}{outline_color}{0} = q{#000};
+        $clock{setting}{outline_color}{1} = q{#080};
+    }
+    if ( $clock{setting}{color_key} == 2 ) {
+        $clock{setting}{color}{0} = q{#008};
+        $clock{setting}{color}{1} = q{#00C};
+        $clock{setting}{color}{2} = q{#00F};
+        $clock{setting}{outline_color}{0} = q{#000};
+        $clock{setting}{outline_color}{1} = q{#008};
+    }
 }
 
 sub check_outline {
