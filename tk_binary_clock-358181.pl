@@ -26,19 +26,21 @@ GetOptions(
     qq{debug} => \$_debug,
 );
 
-$clock{setting}{time_display}     = 0;
-$clock{setting}{time_mode}        = 0;
-$clock{setting}{hour_mode}        = 0;
-$clock{setting}{brightness}       = 2;
-$clock{setting}{outline}          = 1;
-$clock{setting}{cheat_mode}       = 1;
-$clock{setting}{color}{0}         = q{#008};
-$clock{setting}{color}{1}         = q{#00C};
-$clock{setting}{color}{2}         = q{#00F};
-$clock{setting}{outline_color}{0} = q{#000};
-$clock{setting}{outline_color}{1} = q{#008};
-$clock{setting}{time}             = q{00:00:00};
-$clock{setting}{day_second}       = 0;
+$clock{setting}{time_display}      = 0;
+$clock{setting}{time_mode}         = 0;
+$clock{setting}{hour_mode}         = 0;
+$clock{setting}{brightness}        = 2;
+$clock{setting}{outline}           = 1;
+$clock{setting}{cheat_mode}        = 1;
+$clock{setting}{color}{0}          = q{#008};
+$clock{setting}{color}{1}          = q{#00C};
+$clock{setting}{color}{2}          = q{#00F};
+$clock{setting}{outline_color}{0}  = q{#000};
+$clock{setting}{outline_color}{1}  = q{#008};
+$clock{setting}{time}              = q{00:00:00};
+$clock{setting}{day_second}        = 0;
+$clock{setting}{show_progress_bar} = 1;
+$clock{setting}{show_progress_bar_processed} = $clock{setting}{show_progress_bar};
 
 $clock{main} = new MainWindow;
 
@@ -64,6 +66,7 @@ $clock{display}{label2} = $clock{display}->Label(
 
 $interface_row++;
 
+$clock{display}{canvas_ph_1} = $clock{display}->Canvas( -height => 20, -width => 1, )->grid( -column => 0, -row => $interface_row, );
 $clock{display}{progress_bar} = $clock{display}->ProgressBar(
     -width  => 20,
     -length => 320,
@@ -76,7 +79,8 @@ $clock{display}{progress_bar} = $clock{display}->ProgressBar(
         43200, 'yellow', 64800, 'red',
     ],
     -variable => \$clock{setting}{day_second},
-)->grid( -column => 0, -columnspan => 4, -row => $interface_row, );
+)->grid( -column => 1, -columnspan => 4, -row => $interface_row, );
+$clock{display}{canvas_ph_2} = $clock{display}->Canvas( -height => 20, -width => 1, )->grid( -column => 5, -row => $interface_row, );
 
 {
     my $active   = q{#3333FF};
@@ -190,6 +194,21 @@ $clock{control}->Radiobutton(
 
 $interface_row++;
 
+$clock{control}->Label( -text => q{Progress bar:} )
+  ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{No},
+    -value    => 0,
+    -variable => \$clock{setting}{show_progress_bar},
+)->grid( -column => 2, -row => $interface_row, );
+$clock{control}->Radiobutton(
+    -text     => q{Yes},
+    -value    => 1,
+    -variable => \$clock{setting}{show_progress_bar},
+)->grid( -column => 3, -row => $interface_row, );
+
+$interface_row++;
+
 if (0) {
     $clock{control}->Label( -text => q{Cheat mode:} )
       ->grid( -column => 0, -columnspan => 2, -row => $interface_row, );
@@ -213,6 +232,7 @@ MainLoop;
 sub check_up {
     &check_outline;
     &check_brightness;
+    &check_progress_bar;
     &check_time;
 }
 
@@ -237,6 +257,19 @@ sub check_brightness {
                   { $clock{setting}{brightness} },
             );
         }
+    }
+}
+
+sub check_progress_bar {
+
+    if ( $clock{setting}{show_progress_bar} != $clock{setting}{show_progress_bar_processed} ) {
+        if ( $clock{setting}{show_progress_bar} == 0 ) {
+            $clock{display}{progress_bar}->gridRemove();
+        }
+        elsif ( $clock{setting}{show_progress_bar} == 1 ) {
+            $clock{display}{progress_bar}->grid(-column => 0, -columnspan => 4, -row => 2, );
+        }
+        $clock{setting}{show_progress_bar_processed} = $clock{setting}{show_progress_bar};
     }
 }
 
